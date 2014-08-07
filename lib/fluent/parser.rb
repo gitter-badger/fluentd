@@ -31,6 +31,16 @@ module Fluent
           else
             Time.method(:parse)
           end
+
+        m = case Engine.default_time_unit
+            when 'second'
+              method(:parse_time_as_second)
+            when 'millisecond'
+              method(:parse_time_as_millisecond)
+            end
+        (class << self; self; end).module_eval do
+          define_method(:parse_time, m)
+        end
       end
 
       def parse(value)
@@ -43,13 +53,21 @@ module Fluent
         elsif @cache2_key == value
           return @cache2_time
         else
-          time = @parser.call(value).to_i
+          time = parse_time(value)
           @cache1_key = @cache2_key
           @cache1_time = @cache2_time
           @cache2_key = value
           @cache2_time = time
           return time
         end
+      end
+
+      def parse_time_as_second(value)
+        @parser.call(value).to_i
+      end
+
+      def parse_time_as_millisecond(value)
+        @parser.call(value).to_f
       end
     end
 

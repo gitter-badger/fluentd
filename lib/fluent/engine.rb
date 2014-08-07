@@ -36,13 +36,14 @@ module Fluent
 
       @suppress_config_dump = false
       @without_source = false
+      @default_time_unit = 'second'
     end
 
     MATCH_CACHE_SIZE = 1024
 
     LOG_EMIT_INTERVAL = 0.1
 
-    attr_reader :matches, :sources
+    attr_reader :matches, :sources, :default_time_unit
 
     def init(opts = {})
       BasicSocket.do_not_reverse_lookup = true
@@ -55,8 +56,32 @@ module Fluent
       suppress_interval(opts[:suppress_interval]) if opts[:suppress_interval]
       @suppress_config_dump = opts[:suppress_config_dump] if opts[:suppress_config_dump]
       @without_source = opts[:without_source] if opts[:without_source]
+      @default_time_unit = opts[:default_time_unit] if opts[:default_time_unit]
+
+      setup_now
 
       self
+    end
+
+    def setup_now
+      m = case @default_time_unit
+          when 'second'
+            method(:now_second)
+          when 'millisecond'
+            method(:now_millisecond)
+          end
+      (class << self; self; end).module_eval do
+        define_method(:now, m)
+      end
+    end
+
+    def now_second
+      # TODO thread update
+      Time.now.to_i
+    end
+
+    def now_millisecond
+      Time.now.to_f
     end
 
     def suppress_interval(interval_time)
@@ -180,11 +205,6 @@ module Fluent
 
     def flush!
       flush_recursive(@matches)
-    end
-
-    def now
-      # TODO thread update
-      Time.now.to_i
     end
 
     def log_event_loop
