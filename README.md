@@ -1,5 +1,6 @@
 Fluentd: Open-Source Data Collector
 ===================================
+[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/rail44/fluentd?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 [<img src="https://travis-ci.org/fluent/fluentd.svg" />](https://travis-ci.org/fluent/fluentd) [![Code Climate](https://codeclimate.com/github/fluent/fluentd/badges/gpa.svg)](https://codeclimate.com/github/fluent/fluentd)
 
